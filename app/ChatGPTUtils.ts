@@ -32,7 +32,7 @@ export async function getChatGPTResponse<T>(
             role: 'user',
             content: input,
         };
-        const GPTAPIKey = process.env.OPENAI_API_KEY || "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";
+        const GPTAPIKey = process.env.OPENAI_API_KEY;
         if (!GPTAPIKey){
             console.error("'OPENAI_API_KEY' not found within process.env.");
             return;

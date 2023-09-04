@@ -1,54 +1,31 @@
 import React, {useRef, useCallback, useState, useEffect} from 'react';
-// import {Configuration, OpenAIApi, ChatCompletionRequestMessage} from 'openai';
 import {type ActionArgs} from '@remix-run/node';
 import {Form, Link, useActionData, useNavigation, useSubmit} from '@remix-run/react';
-import context from '~/context';
 import {Send as SendIcon} from '../components/Icons';
 import { askLanguageModelShape } from '~/ChatGPTUtils';
+interface stringContainer{
+  answer: string;
+}
+function setNewCode({answer}: stringContainer): string {
+    return answer;
+}
 
 export interface ReturnedDataProps {
   message?: string;
   answer: string;
   error?: string;
-  //chatHistory: ChatCompletionRequestMessage[];
 }
-/*
-export interface ChatHistoryProps extends ChatCompletionRequestMessage {
-  error?: boolean,
-}
-*/
+
 export async function action({request}: ActionArgs): Promise<ReturnedDataProps> {
   const body = await request.formData();
   let message = body.get('message') as string;
   const exampleCode = `console.log("Hello World!")`
-  // const chatHistory = JSON.parse(body.get('chat-history') as string) || [];
   message = `Modify the following code:\n` + exampleCode + `\nTo these specifications: \n` + message + `\n Respond using ONLY executable code, with nothing else in your reply.`;
-  
-  /*
-  const conf = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-  */
+
   try {
-    /*
-    const openai = new OpenAIApi(conf);
-
-    const chat = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        ...context,
-        ...chatHistory,
-        {
-          role: 'user',
-          content: message,
-        },
-      ],
-    });
-
-    const answer = chat.data.choices[0].message?.content;
-    */
-    const answer = await askLanguageModelShape(
-      message, // Replace with your prompt
+    console.log("calling asklanguagemodleshape\n" + message)
+    const answer: string = await askLanguageModelShape(
+      message,
       {
           "name": "setNewCode",
           "description": "Return the code that chatgpt generated",
@@ -63,22 +40,17 @@ export async function action({request}: ActionArgs): Promise<ReturnedDataProps> 
               "required": ["answer"]
           }
       },
-      (code) => {
-          return code.answer;
-      }
+      setNewCode
   );
-  
     return {
       message: body.get('message') as string,
       answer: answer as string,
-      //chatHistory,
     };
   } catch (error: any) {
     return {
       message: body.get('message') as string,
       answer: '',
       error: error.message || 'Something went wrong! Please try again.',
-      //hatHistory,
     };
   }
 }
@@ -89,25 +61,15 @@ export default function IndexPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigation = useNavigation();
   const submit = useSubmit();
-  //const [chatHistory, setChatHistory] = useState<ChatHistoryProps[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [randomCodeString, setRandomCodeAndChallengeString] = useState<string>('');
   const [gptResponse, setGptResponse] = useState<string>(''); // Added state for GPT response
 
   const isSubmitting = navigation.state === 'submitting';
-  /*
-  const saveUserMessage = (message: string) => {
-    setChatHistory(prevChatHistory => [...prevChatHistory, {role: 'user', content: message}]);
-  };
-  */
-  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => { // Made the function async
-    const formData = new FormData(event.target as HTMLFormElement);
-    const message = formData.get('message');
 
-    //saveUserMessage(message as string);
-    
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => { // Made the function async
+    const formData = new FormData(event.target as HTMLFormElement);    
     submit(formData);
-    // Call the action function with the message
   };
 
   useEffect(() => {
@@ -121,22 +83,20 @@ export default function IndexPage() {
     const value = (event.target as HTMLTextAreaElement).value;
 
     if (event.key === 'Enter' && !event.shiftKey && value.trim().length > 2) {
-      //saveUserMessage(value);
       submit(formRef.current, {replace: true});
       inputRef.current!.value = ''; // Clear the text inside the text box
     }
-  }, [submit, formRef, /*saveUserMessage*/]);
+  }, [submit, formRef]);
 
   useEffect(() => {
     const startingCodeArray = [
-      `console.log("Hello, World!");` // JavaScript code
+      `console.log("Hello, World!");`
     ];
     const startingChallengeArray = [
       `Modify the following code to print out "Hi!" five times. --> \n`
     ]
     // const randomIndex1 = Math.floor(Math.random() * startingChallengeArray.length);
     // const randomIndex2 = Math.floor(Math.random() * startingCodeArray.length);
-
     setRandomCodeAndChallengeString(startingChallengeArray[0] + startingCodeArray[0]);
   }, []);
 
@@ -160,7 +120,7 @@ export default function IndexPage() {
     <main className="container mx-auto rounded-lg flex flex-col h-screen">
       {/* Header */}
       <div className="header-text col-span-3">
-        <h1 className="text-2xl font-semibold">Your Header Text Goes Here</h1>
+        <h1 className="text-3xl font-semibold ml-8 mt-4">Code Conversations with ChatGPT</h1>
       </div>
   
       {/* Content Boxes Container */}
