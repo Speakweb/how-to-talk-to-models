@@ -13,7 +13,7 @@ import customCss from '~/stylesheets/custom.css';
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "Open AI base application",
+  title: "Coding with ChatGPT",
   viewport: "width=device-width,initial-scale=1",
 });
 

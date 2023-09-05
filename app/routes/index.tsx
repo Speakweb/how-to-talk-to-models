@@ -4,12 +4,10 @@ import {Form, Link, useActionData, useNavigation, useSubmit} from '@remix-run/re
 import {Send as SendIcon} from '../components/Icons';
 import { askLanguageModelShape } from '~/ChatGPTUtils';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-// import jsx from 'react-syntax-highlighter/dist/esm/languages/prism/jsx';
 import prism from 'react-syntax-highlighter/dist/cjs/styles/prism/prism';
 import javascript from 'react-syntax-highlighter/dist/cjs/languages/prism/javascript';
-
-// SyntaxHighlighter.registerLanguage('jsx', jsx);
 SyntaxHighlighter.registerLanguage('javascript', javascript);
+
 interface stringContainer{
   answer: string;
 }
@@ -137,30 +135,28 @@ export default function IndexPage() {
           <h2 className="header font-bold text-lg">Code Display</h2>
           <div className="content-box" style={{ wordWrap: 'break-word', overflow: 'auto' }}>
             <div>{challengeString}</div>
-            <SyntaxHighlighter language="javascript" style={prism}>{codeString}</SyntaxHighlighter>
+            <SyntaxHighlighter showLineNumbers={true} wrapLongLines={true} language="javascript" style={prism}>{codeString}</SyntaxHighlighter>
           </div>
         </div>
   
         {/* Box 2: User Input */}
-        <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black flex flex-col mb-4">
+        <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black flex flex-col mb-4 h-full">
           <h2 className="header font-bold text-lg">User Input</h2>
-          <div className="content-box flex-grow" style={{ wordWrap: 'break-word', overflow: 'auto' }}>
             {/* User input content */}
-          </div>
           <Form
             aria-disabled={isSubmitting}
             method="post"
             ref={formRef}
             onSubmit={handleFormSubmit}
             replace
-            className="w-full flex flex-col justify-between"
+            className="w-full flex flex-col justify-between h-full"
           >
-            <div className="flex justify-between items-end">
+            <div className="flex justify-between items-end flex-grow h-full mt-0.3">
               <textarea
                 id="message"
                 aria-disabled={isSubmitting}
                 ref={inputRef}
-                className="input-box flex-grow mr-2"
+                className="input-box flex-grow mr-2 h-full "
                 placeholder="Type your message to ChatGPT here..."
                 name="message"
                 required
@@ -169,11 +165,6 @@ export default function IndexPage() {
                 minLength={2}
                 disabled={isSubmitting}
                 style={{ overflow: 'auto', resize: 'none', wordWrap: 'break-word' }}
-                onInput={e => {
-                  const target = e.target as HTMLTextAreaElement;
-                  target.style.height = 'auto';
-                  target.style.height = `${target.scrollHeight}px`;
-                }}
               />
               <button
                 aria-label="Submit"
@@ -195,7 +186,7 @@ export default function IndexPage() {
         <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black mb-4">
           <h2 className="header font-bold text-lg">GPT Response</h2>
           <div className="content-box" style={{ wordWrap: 'break-word', overflow: 'auto' }}>
-            <SyntaxHighlighter language="javascript" style={prism}>{gptResponse}</SyntaxHighlighter>
+            <SyntaxHighlighter showLineNumbers={true} wrapLongLines={true} language="javascript" style={prism}>{gptResponse || "// This is where your ChatGPT-modified \n// code will be displayed"}</SyntaxHighlighter>
           </div>
         </div>
       </div>
