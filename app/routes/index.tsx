@@ -3,6 +3,13 @@ import {type ActionArgs} from '@remix-run/node';
 import {Form, Link, useActionData, useNavigation, useSubmit} from '@remix-run/react';
 import {Send as SendIcon} from '../components/Icons';
 import { askLanguageModelShape } from '~/ChatGPTUtils';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+// import jsx from 'react-syntax-highlighter/dist/esm/languages/prism/jsx';
+import prism from 'react-syntax-highlighter/dist/cjs/styles/prism/prism';
+import javascript from 'react-syntax-highlighter/dist/cjs/languages/prism/javascript';
+
+// SyntaxHighlighter.registerLanguage('jsx', jsx);
+SyntaxHighlighter.registerLanguage('javascript', javascript);
 interface stringContainer{
   answer: string;
 }
@@ -11,6 +18,7 @@ function setNewCode({answer}: stringContainer): string {
 }
 
 export interface ReturnedDataProps {
+  
   message?: string;
   answer: string;
   error?: string;
@@ -23,7 +31,6 @@ export async function action({request}: ActionArgs): Promise<ReturnedDataProps> 
   message = `Modify the following code:\n` + exampleCode + `\nTo these specifications: \n` + message + `\n Respond using ONLY executable code, with nothing else in your reply.`;
 
   try {
-    console.log("calling asklanguagemodleshape\n" + message)
     const answer: string = await askLanguageModelShape(
       message,
       {
@@ -62,9 +69,9 @@ export default function IndexPage() {
   const navigation = useNavigation();
   const submit = useSubmit();
   const [error, setError] = useState<string | null>(null);
-  const [randomCodeString, setRandomCodeAndChallengeString] = useState<string>('');
+  const [challengeString, setChallengeString] = useState<string>('');
+  const [codeString, setCodeString] = useState<string>('');
   const [gptResponse, setGptResponse] = useState<string>(''); // Added state for GPT response
-
   const isSubmitting = navigation.state === 'submitting';
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => { // Made the function async
@@ -75,7 +82,6 @@ export default function IndexPage() {
   useEffect(() => {
     if (data) {
       setGptResponse(data.answer);
-      // alert("Congratulations!\n You Won!");
     }
   }, [data]);
 
@@ -84,20 +90,21 @@ export default function IndexPage() {
 
     if (event.key === 'Enter' && !event.shiftKey && value.trim().length > 2) {
       submit(formRef.current, {replace: true});
-      inputRef.current!.value = ''; // Clear the text inside the text box
+      inputRef.current!.value = '';
     }
   }, [submit, formRef]);
 
   useEffect(() => {
-    const startingCodeArray = [
+    const CodeArray = [
       `console.log("Hello, World!");`
     ];
-    const startingChallengeArray = [
+    const ChallengeArray = [
       `Modify the following code to print out "Hi!" five times. --> \n`
     ]
-    // const randomIndex1 = Math.floor(Math.random() * startingChallengeArray.length);
-    // const randomIndex2 = Math.floor(Math.random() * startingCodeArray.length);
-    setRandomCodeAndChallengeString(startingChallengeArray[0] + startingCodeArray[0]);
+    const challengeIndex = 0
+    const codeIndex = 0;
+    setChallengeString(ChallengeArray[challengeIndex])
+    setCodeString(CodeArray[codeIndex])
   }, []);
 
   if (error) {
@@ -129,7 +136,8 @@ export default function IndexPage() {
         <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black mb-4">
           <h2 className="header font-bold text-lg">Code Display</h2>
           <div className="content-box" style={{ wordWrap: 'break-word', overflow: 'auto' }}>
-            <div>{randomCodeString}</div>
+            <div>{challengeString}</div>
+            <SyntaxHighlighter language="javascript" style={prism}>{codeString}</SyntaxHighlighter>
           </div>
         </div>
   
@@ -187,7 +195,7 @@ export default function IndexPage() {
         <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black mb-4">
           <h2 className="header font-bold text-lg">GPT Response</h2>
           <div className="content-box" style={{ wordWrap: 'break-word', overflow: 'auto' }}>
-            <div>{gptResponse}</div>
+            <SyntaxHighlighter language="javascript" style={prism}>{gptResponse}</SyntaxHighlighter>
           </div>
         </div>
       </div>
