@@ -16,7 +16,6 @@ function setNewCode({answer}: stringContainer): string {
 }
 
 export interface ReturnedDataProps {
-  
   message?: string;
   answer: string;
   error?: string;
@@ -25,8 +24,8 @@ export interface ReturnedDataProps {
 export async function action({request}: ActionArgs): Promise<ReturnedDataProps> {
   const body = await request.formData();
   let message = body.get('message') as string;
-  const exampleCode = `console.log("Hello World!")`
-  message = `Modify the following code:\n` + exampleCode + `\nTo these specifications: \n` + message + `\n Respond using ONLY executable code, with nothing else in your reply.`;
+  let sourceCode = body.get('sourceCode') as string;
+  message = `Modify the following code:\n` + sourceCode + `\nTo these specifications: \n` + message + `\n Respond using ONLY executable code, with nothing else in your reply.`;
 
   try {
     const answer: string = await askLanguageModelShape(
@@ -47,11 +46,13 @@ export async function action({request}: ActionArgs): Promise<ReturnedDataProps> 
       },
       setNewCode
   );
+    console.log(answer)
     return {
       message: body.get('message') as string,
       answer: answer as string,
     };
   } catch (error: any) {
+    console.log(error)
     return {
       message: body.get('message') as string,
       answer: '',
@@ -74,11 +75,13 @@ export default function IndexPage() {
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => { // Made the function async
     const formData = new FormData(event.target as HTMLFormElement);    
+    formData.set("sourceCode", codeString);
     submit(formData);
   };
 
   useEffect(() => {
     if (data) {
+      debugger;
       setGptResponse(data.answer);
     }
   }, [data]);
@@ -140,7 +143,7 @@ export default function IndexPage() {
         </div>
   
         {/* Box 2: User Input */}
-        <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black flex flex-col mb-4 h-full">
+        <div className="box-container p-4 sm:p-8 backdrop-blur-md border border-black flex flex-col mb-4 flex-1">
           <h2 className="header font-bold text-lg">User Input</h2>
             {/* User input content */}
           <Form
