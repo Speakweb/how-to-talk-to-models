@@ -51,7 +51,7 @@ export const Puzzles: ProgrammingPuzzle[] = [
         }
         return output;
       }
-      return green()
+      return green();
     }.toString(),
     testExamples: [
       {
@@ -84,7 +84,12 @@ function verifyCorrect(
       const result = func(example.params);
       debugger;
       if (JSON.stringify(result) !== JSON.stringify(example.expectedResult)) {
-        return { passed: false, failedOn: example, gptReturn: funcString, result };
+        return {
+          passed: false,
+          failedOn: example,
+          gptReturn: funcString,
+          result,
+        };
       }
     }
   } catch (e) {
@@ -92,7 +97,7 @@ function verifyCorrect(
       passed: false,
       failedOn: currentExample,
       gptReturn: funcString,
-      result: e
+      result: e,
     };
   }
 
@@ -225,11 +230,11 @@ export default function IndexPage() {
 
   if (error) {
     return (
-      <main className="container mx-auto rounded-lg h-full grid grid-rows-layout p-1 pb-0 sm:p-1 sm:pb-0 max-w-full sm:max-w-aut oml-4">
+      <main className="container mx-auto text-sm rounded-lg h-full grid grid-rows-layout p-1 pb-0 sm:p-1 sm:pb-0 max-w-full sm:max-w-aut oml-4">
         <div className="chat-container">
           <div className="intro grid place-items-center h-full text-center">
             <div className="intro-content inline-block px-4 py-8 border border-error rounded-lg">
-              <h1 className="text-3xl font-semibold">
+              <h1 className="text-2xl font-semibold">
                 Oops, something went wrong!
               </h1>
               <p className="mt-4 text-error ">{error}</p>
@@ -244,10 +249,10 @@ export default function IndexPage() {
   }
 
   return (
-    <main className="rounded-lg flex flex-col h-screen w-screen">
+    <main className="text-sm rounded-lg flex flex-col h-screen w-screen">
       {/* Header */}
       <div className="header-text col-span-3">
-        <h1 className="text-3xl font-semibold ml-8 mt-4">
+        <h1 className="text-2xl font-semibold ml-8 mt-4">
           Code Conversations with ChatGPT
         </h1>
       </div>
@@ -256,9 +261,9 @@ export default function IndexPage() {
       <div className="flex-grow grid grid-cols-3 gap-1 p-1 pb-0 w-full">
         {/* Box 1: Code Display */}
         <div className="box-container p-1 backdrop-blur-md border border-black mb-4">
-          <h2 className="header font-bold text-lg">Code Display</h2>
+          <h2 className="header font-bold text-base">Code Display</h2>
           <div
-            className="content-box text-sm"
+            className="content-box text-xs"
             style={{ wordWrap: "break-word", overflow: "auto" }}
           >
             <div>{currentPuzzle.description}</div>
@@ -267,6 +272,16 @@ export default function IndexPage() {
               wrapLongLines={true}
               language="javascript"
               style={prism}
+              showInlineLineNumbers={false}
+              codeTagProps={{
+                style: {
+                  lineHeight: "inherit",
+                  fontSize: "inherit",
+                },
+              }}
+              customStyle={ {
+                fontSize: "1em"
+              } }
             >
               {currentPuzzle.sourceCode}
             </SyntaxHighlighter>
@@ -275,7 +290,7 @@ export default function IndexPage() {
 
         {/* Box 2: User Input */}
         <div className="box-container p-1 sm:p-1 backdrop-blur-md border border-black flex flex-col mb-4 flex-1">
-          <h2 className="header font-bold text-lg">User Input</h2>
+          <h2 className="header font-bold text-base">User Input</h2>
           {/* User input content */}
           <Form
             aria-disabled={isSubmitting}
@@ -323,9 +338,9 @@ export default function IndexPage() {
 
         {/* Box 3: GPT Response */}
         <div className="box-container p-1 sm:p-1 backdrop-blur-md border border-black mb-4">
-          <h2 className="header font-bold text-lg">GPT Response</h2>
+          <h2 className="header font-bold text-base">GPT Response</h2>
           <div
-            className="content-box"
+            className="content-box text-xs"
             style={{ wordWrap: "break-word", overflow: "auto" }}
           >
             <SyntaxHighlighter
@@ -333,6 +348,16 @@ export default function IndexPage() {
               wrapLongLines={true}
               language="javascript"
               style={prism}
+              showInlineLineNumbers={false}
+              codeTagProps={{
+                style: {
+                  lineHeight: "inherit",
+                  fontSize: "inherit",
+                },
+              }}
+              customStyle={ {
+                fontSize: "1em"
+              } }
             >
               {gptResponse ||
                 "// This is where your ChatGPT-modified \n// code will be displayed"}
@@ -342,33 +367,36 @@ export default function IndexPage() {
         {/* Box 4: Puzzle Verification Result */}
         {puzzleVerificationResult ? (
           <div className="box-container p-1 sm:p-1 backdrop-blur-md border border-black mb-4">
-            <h2 className="header font-bold text-lg">
+            <h2 className="header font-bold text-base">
               Puzzle Verification Result
             </h2>
             <div
-              className="content-box"
+              className="content-box text-xs"
               style={{ wordWrap: "break-word", overflow: "auto" }}
             >
               {puzzleVerificationResult?.passed ? (
                 <div>
-                  <h3 className="text-green-500">
+                  <h3 className="text-green-500 text-base">
                     Success! You solved the puzzle.
                   </h3>
                 </div>
               ) : (
                 <div>
-                  <h3 className="text-red-500">
+                  <h3 className="text-red-500 text-base">
                     Failure! The puzzle was not solved.
                   </h3>
                   {puzzleVerificationResult?.failedOn ? (
                     <code>
                       Failed on example:
-
-                      {JSON.stringify(puzzleVerificationResult.failedOn.params)}{" "}
-
-                      {JSON.stringify(puzzleVerificationResult.failedOn.expectedResult)}
-
-                      {JSON.stringify(JSON.stringify(puzzleVerificationResult.result))}
+                      {JSON.stringify(
+                        puzzleVerificationResult.failedOn.params
+                      )}{" "}
+                      {JSON.stringify(
+                        puzzleVerificationResult.failedOn.expectedResult
+                      )}
+                      {JSON.stringify(
+                        JSON.stringify(puzzleVerificationResult.result)
+                      )}
                     </code>
                   ) : (
                     <p>{puzzleVerificationResult?.gptReturn}</p>
