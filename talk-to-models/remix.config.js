@@ -7,6 +7,6 @@ export default {
   // publicPath: "/build/",
   // serverBuildPath: "build/index.js",
   future: {
-    unstable_tailwind: true,
-  }
+  },
+  browserNodeBuiltinsPolyfill: { modules: { "fs/promises": true } }
 };
