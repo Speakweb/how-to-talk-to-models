@@ -1,53 +1,22 @@
+# Use an official Node.js runtime as the base image
+FROM node:18
 
-# Base Node image
-FROM node:16-alpine as base
-
-# Setup all node_modules
-FROM base as deps
-
-RUN mkdir /app
+# Set the working directory in the container to /app
 WORKDIR /app
 
-ADD package.json package-lock.json ./
-RUN npm install --production=false
+# Copy the package.json file from your local host to the present location (.) in the container
+COPY ./talk-to-models/package.json ./package.json
+COPY ./talk-to-models/package-lock.json ./package-lock.json
 
-# Setup production node_modules
-FROM base as production-deps
+# Install any needed packages specified in package.json
+RUN npm install
 
-RUN mkdir /app
-WORKDIR /app
+# Make port 3000 available outside this container
+EXPOSE 3000
 
-COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json package-lock.json ./
-RUN npm prune --production
+COPY ./talk-to-models .
 
-# Build the app
-FROM base as build
+RUN npm run build;
 
-ENV NODE_ENV=production
-
-RUN mkdir /app
-WORKDIR /app
-
-COPY --from=deps /app/node_modules /app/node_modules
-
-ADD . .
-RUN npm run build
-
-# Build production image
-FROM base
-
-ENV NODE_ENV=production
-ENV PORT=80
-
-RUN mkdir /app
-WORKDIR /app
-
-COPY --from=production-deps /app/node_modules /app/node_modules
-
-COPY --from=build /app/public /app/public
-ADD . .
-
-EXPOSE 80
-
-CMD ["npm", "run", "dev"]
+# Run npm run start when the container launches
+CMD ["npm", "run", "start"]
